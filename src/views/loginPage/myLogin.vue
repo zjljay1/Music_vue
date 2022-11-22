@@ -5,9 +5,9 @@
       <!-- 注册 -->
       <div class="register-box hidden" ref="register_box">
         <h1>register</h1>
-        <input type="text" placeholder="用户名" v-model="data.account" />
-        <input type="email" placeholder="邮箱" />
-        <input type="password" placeholder="密码" />
+        <input type="text" placeholder="用户名" v-model="loginData.account" />
+        <input type="email" placeholder="邮箱" v-model="loginData.email" />
+        <input type="password" placeholder="密码" v-model="loginData.psd" />
         <input type="password" placeholder="确认密码" />
         <a href="#" class="button button--bird">
           <div class="button__wrapper">
@@ -29,8 +29,8 @@
       <!-- 登录 -->
       <div class="login-box" ref="login_box">
         <h1>login</h1>
-        <input type="text" placeholder="用户名" v-model="data.account" />
-        <input type="password" placeholder="密码" />
+        <input type="text" placeholder="用户名" v-model="loginData.account" />
+        <input type="password" placeholder="密码" v-model="loginData.psd" />
         <a href="#" class="button button--bird">
           <div class="button__wrapper">
             <span class="button__text">登录</span>
@@ -53,7 +53,7 @@
       <h2>欢迎来到<span>木头人音乐盒</span></h2>
       <p>注册领取您的私人<span>特权</span>吧</p>
       <div class="img">
-        <img src="http://www.lvyestudy.com/img/dance.gif" alt="" />
+        <img src="@/assets/dance.gif" alt="" />
       </div>
       <p>已有账号</p>
       <button id="login" @click="toLogin">去登录</button>
@@ -63,7 +63,7 @@
       <p>快登陆来听<span>music</span>吧</p>
 
       <div class="img">
-        <img src="http://www.lvyestudy.com/img/dance.gif" alt="" />
+        <img src="@/assets/dance.gif" alt="" />
       </div>
       <p>没有账号？</p>
       <button id="register" @click="toRegister">去注册</button>
@@ -72,24 +72,26 @@
 </template>
 
 <script lang="ts" setup>
-import { getCurrentInstance, reactive } from "vue";
+import { getCurrentInstance, reactive, toRefs } from "vue";
 const instance = getCurrentInstance()!;
-const data = reactive({
+const loginData = reactive({
   account: "123",
+  psd: "",
+  email: "",
 });
 function toLogin(): void {
   (instance.refs.from_box as HTMLElement).style.transform = `translateX(0%)`;
   (instance.refs.register_box as HTMLElement).classList.add("hidden");
   (instance.refs.login_box as HTMLElement).classList.remove("hidden");
   console.log(instance);
-  console.log(data);
+  console.log(loginData);
 }
-const toRegister = () => {
+const toRegister = ():void => {
   (instance.refs.from_box as HTMLElement).style.transform = `translateX(80%)`;
   (instance.refs.login_box as HTMLElement).classList.add("hidden");
   (instance.refs.register_box as HTMLElement).classList.remove("hidden");
   console.log(instance);
-  console.log(data);
+  console.log(loginData);
 };
 </script>
 
@@ -234,7 +236,7 @@ body {
     }
     .button__text {
       position: relative;
-      font-size: 16px;
+      font-size: 12px;
       letter-spacing: 4px;
       color: var(--base_color);
       transition: all 0.3s ease;
