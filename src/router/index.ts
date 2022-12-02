@@ -34,6 +34,11 @@ const router = createRouter({
       name: "error",
       component: () => import("../views/fofPage/myFof.vue"),
     },
+    {
+      path: "/axios",
+      name: "axios",
+      component: () => import("../views/axios.vue"),
+    },
   ],
 });
 

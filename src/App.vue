@@ -1,9 +1,7 @@
 <template>
-  <div>
-    <router-view></router-view>
-  </div>
+  <RouterView />
 </template>
 <script setup lang="ts">
-import { ref, reactive } from "vue";
+import  {RouterView} from 'vue-router'
 </script>
 <style scoped></style>
