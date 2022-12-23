@@ -1,11 +1,13 @@
 <template>
-  <RouterView /> 
+  <RouterView />
 </template>
 <script setup lang="ts">
-import  {RouterView} from 'vue-router'
+import { RouterView } from "vue-router";
 </script>
 <style lang="scss">
-#app,html,body{
+#app,
+html,
+body {
   height: 100%;
   overflow: hidden;
 }
