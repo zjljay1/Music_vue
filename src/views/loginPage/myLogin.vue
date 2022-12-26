@@ -1,72 +1,74 @@
 <template>
   <!-- <div>我是登录页面</div> -->
-  <div class="container">
-    <div class="form-box" ref="from_box">
-      <!-- 注册 -->
-      <div class="register-box hidden" ref="register_box">
-        <h1>register</h1>
-        <input type="text" placeholder="用户名" v-model="loginData.account" />
-        <input type="email" placeholder="邮箱" v-model="loginData.email" />
-        <input type="password" placeholder="密码" v-model="loginData.psd" />
-        <input type="password" placeholder="确认密码" />
-        <a href="#" class="button button--bird">
-          <div class="button__wrapper">
-            <span class="button__text">注册</span>
-          </div>
-          <div class="birdBox">
-            <div class="bird wakeup">
-              <div class="bird__face"></div>
+  <div class="outer">
+    <div class="container">
+      <div class="form-box" ref="from_box">
+        <!-- 注册 -->
+        <div class="register-box hidden" ref="register_box">
+          <h1>register</h1>
+          <input type="text" placeholder="用户名" v-model="loginData.account" />
+          <input type="email" placeholder="邮箱" v-model="loginData.email" />
+          <input type="password" placeholder="密码" v-model="loginData.psd" />
+          <input type="password" placeholder="确认密码" />
+          <a href="#" class="button button--bird">
+            <div class="button__wrapper">
+              <span class="button__text">注册</span>
             </div>
-            <div class="bird wakeup">
-              <div class="bird__face"></div>
+            <div class="birdBox">
+              <div class="bird wakeup">
+                <div class="bird__face"></div>
+              </div>
+              <div class="bird wakeup">
+                <div class="bird__face"></div>
+              </div>
+              <div class="bird">
+                <div class="bird__face"></div>
+              </div>
             </div>
-            <div class="bird">
-              <div class="bird__face"></div>
+          </a>
+        </div>
+        <!-- 登录 -->
+        <div class="login-box" ref="login_box">
+          <h1>login</h1>
+          <input type="text" placeholder="用户名" v-model="loginData.account" />
+          <input type="password" placeholder="密码" v-model="loginData.psd" />
+          <a href="#" class="button button--bird">
+            <div class="button__wrapper">
+              <span class="button__text">登录</span>
             </div>
-          </div>
-        </a>
+            <div class="birdBox">
+              <div class="bird wakeup">
+                <div class="bird__face"></div>
+              </div>
+              <div class="bird wakeup">
+                <div class="bird__face"></div>
+              </div>
+              <div class="bird">
+                <div class="bird__face"></div>
+              </div>
+            </div>
+          </a>
+        </div>
       </div>
-      <!-- 登录 -->
-      <div class="login-box" ref="login_box">
-        <h1>login</h1>
-        <input type="text" placeholder="用户名" v-model="loginData.account" />
-        <input type="password" placeholder="密码" v-model="loginData.psd" />
-        <a href="#" class="button button--bird">
-          <div class="button__wrapper">
-            <span class="button__text">登录</span>
-          </div>
-          <div class="birdBox">
-            <div class="bird wakeup">
-              <div class="bird__face"></div>
-            </div>
-            <div class="bird wakeup">
-              <div class="bird__face"></div>
-            </div>
-            <div class="bird">
-              <div class="bird__face"></div>
-            </div>
-          </div>
-        </a>
+      <div class="con-box left">
+        <h2>欢迎来到<span>木头人音乐盒</span></h2>
+        <p>注册领取您的私人<span>特权</span>吧</p>
+        <div class="img">
+          <img src="@/assets/dance.gif" alt="" />
+        </div>
+        <p>已有账号</p>
+        <button id="login" @click="toLogin">去登录</button>
       </div>
-    </div>
-    <div class="con-box left">
-      <h2>欢迎来到<span>木头人音乐盒</span></h2>
-      <p>注册领取您的私人<span>特权</span>吧</p>
-      <div class="img">
-        <img src="@/assets/dance.gif" alt="" />
-      </div>
-      <p>已有账号</p>
-      <button id="login" @click="toLogin">去登录</button>
-    </div>
-    <div class="con-box right">
-      <h2>欢迎来到<span>木头人音乐盒</span></h2>
-      <p>快登陆来听<span>music</span>吧</p>
+      <div class="con-box right">
+        <h2>欢迎来到<span>木头人音乐盒</span></h2>
+        <p>快登陆来听<span>music</span>吧</p>
 
-      <div class="img">
-        <img src="@/assets/dance.gif" alt="" />
+        <div class="img">
+          <img src="@/assets/dance.gif" alt="" />
+        </div>
+        <p>没有账号？</p>
+        <button id="register" @click="toRegister">去注册</button>
       </div>
-      <p>没有账号？</p>
-      <button id="register" @click="toRegister">去注册</button>
     </div>
   </div>
 </template>
@@ -86,7 +88,7 @@ function toLogin(): void {
   console.log(instance);
   console.log(loginData);
 }
-const toRegister = ():void => {
+const toRegister = (): void => {
   (instance.refs.from_box as HTMLElement).style.transform = `translateX(80%)`;
   (instance.refs.login_box as HTMLElement).classList.add("hidden");
   (instance.refs.register_box as HTMLElement).classList.remove("hidden");
@@ -106,6 +108,11 @@ body {
   /* 渐变背景 */
   background: linear-gradient(200deg, #f3e7e9, #e3eeff);
 }
+.outer{
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
 .container {
   background-color: #fff;
   width: 650px;
@@ -115,6 +122,8 @@ body {
   box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.1);
   /* 相对定位 */
   position: relative;
+  top: 50%;
+  transform: translateY(-50%);
   .form-box {
     /* 绝对定位 */
     position: absolute;

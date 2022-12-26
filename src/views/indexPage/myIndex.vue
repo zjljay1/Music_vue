@@ -150,8 +150,8 @@
     <div class="bottom">
       <div class="scroll">
         <el-slider
-          v-model="musicDuration"
-          :max="totalDuration"
+          v-model="music_option.musicDuration"
+          :max="music_option.totalDuration"
           @change="musicDurationChange"
           :show-tooltip="false"
           :disabled="isUrl"
@@ -185,9 +185,10 @@
               <a>{{ "歌手 " }} - {{ " 歌名" }}</a>
             </div>
             <div class="sing-time">
-              <span>{{ "00:00" }}</span
+              <span>{{ songTimeFormat(music_option.musicDuration) }}</span
               >/
-              <span>{{ "00:00" }}</span>
+              <span>{{ songTimeFormat(music_option.timeDuration) }}</span>
+              <!-- <span>{{ "00:00" }}</span> -->
             </div>
           </div>
           <div class="icon">
@@ -222,8 +223,8 @@
           </div>
           <div class="start" @click="playMusic">
             <span style="cursor: pointer">
-              <el-icon v-show="isplay"><VideoPause /></el-icon>
-              <el-icon v-show="!isplay"><VideoPlay /></el-icon>
+              <el-icon v-show="music_option.isplay"><VideoPause /></el-icon>
+              <el-icon v-show="!music_option.isplay"><VideoPlay /></el-icon>
             </span>
           </div>
           <div class="next" @click="nextMusic">
@@ -239,10 +240,9 @@
             </a>
             <div class="lound">
               <el-slider
-                v-model="value"
+                v-model="music_option.value"
                 vertical
                 height="60px"
-                size="mini"
                 @change="volumeChange"
               ></el-slider>
             </div>
@@ -276,7 +276,10 @@
             </span>
           </div>
         </div>
-        <audio :src="getNowMusic" autoplay class="playMusicAudio" ref="audio"></audio>
+        <!-- <audio :src="getNowMusic" autoplay class="playMusicAudio" ref="audio" controls> -->
+        <audio autoplay class="playMusicAudio" ref="audio">
+          <source src="@/assets/mp3/蒲公英的约定 - 周杰伦.mp3" />
+        </audio>
       </div>
     </div>
   </div>
@@ -303,22 +306,25 @@ import {
   Fold,
 } from "@element-plus/icons-vue";
 import leftMenu from "@/components/leftMenu.vue";
+import { timeFormat, songTimeFormat } from "@/utils/timeForm";
 type option = {
   content: string;
   icon: string;
 };
+const audio = ref<HTMLAudioElement>(null as never);
 const tagIconArr: option[] = [
   { content: "Liked Songs", icon: "love_option" },
   { content: "Recently Played", icon: "music_option" },
   { content: "Friends Played", icon: "friends_option" },
 ];
-const musicDurationChange = (): void => {
-  console.log("我是" + "musicDurationChange");
-};
+onMounted(() => {
+  console.log(111, audio.value);
+});
 const currentDate = ref(new Date());
 const music_option = reactive({
   isplay: false, //播放状态
   musicDuration: 0, //音乐当前播放时间
+  timeDuration: 0, //总时长
   totalDuration: 100, //总时长 默认先给个100
   isUrl: true, //设置无歌曲时进度条不可拖动
   value: 100, //音量
@@ -326,7 +332,8 @@ const music_option = reactive({
   // 展示右边的歌单对话框
   showRightDialog: false,
 });
-const { musicDuration, totalDuration, isUrl, isplay, value } = toRefs({ ...music_option });
+const { isUrl } = toRefs({ ...music_option });
+isUrl.value = false;
 const getNowMusic = "@/assets/mp3/七里香完整.mp3";
 //
 const togSingel = (): void => {
@@ -334,18 +341,50 @@ const togSingel = (): void => {
 };
 // const getTime = computed<string>(() => {
 //   return "返回时间";
-const preMusic = (): void => {
-  console.log("preMusic");
-};
+//播放/暂停音乐
 const playMusic = (): void => {
   console.log("playMusic");
+  if (!audio.value.paused) {
+    audio.value.pause();
+    music_option.isplay = false;
+  } else {
+    audio.value.play();
+    music_option.isplay = true;
+    musicDurationChange();
+  }
+};
+//上一首音乐
+const preMusic = (): void => {
+  console.log("preMusic");
 };
 // 下一首音乐
 const nextMusic = (): void => {
   console.log("nextMusic");
 };
+//音量控制
 const volumeChange = (): void => {
+  audio.value.volume = music_option.value / 100;
   console.log("volumeChange");
+};
+//进度条控制
+const musicDurationChange = (): void => {
+  console.log("我是" + "musicDurationChange");
+  audio.value.currentTime = music_option.musicDuration;
+  audio.value.addEventListener("timeupdate", () => {
+    //获取歌曲的总长度 example: 257s
+    music_option.timeDuration = audio.value.duration;
+    music_option.totalDuration = audio.value.duration;
+    //获取歌曲时间
+    music_option.musicDuration = audio.value.currentTime;
+    // 当前歌曲播放完毕自动播放下一首
+    if (audio.value.currentTime >= audio.value.duration) {
+      console.log("歌曲播放完毕");
+      music_option.isplay = false;
+    }
+  });
+  // if (this.isplay) return;
+  audio.value.play();
+  music_option.isplay = true;
 };
 //显示右下角歌单
 const showRightList = (): void => {
@@ -358,6 +397,48 @@ onMounted(() => {
   console.log("加载完成...");
 });
 </script>
+
+<style>
+/* .el-dialog__wrapper{
+  position: absolute !important;
+  right: 0;
+  bottom: 0;
+  z-index: 99999;
+  overflow: auto;
+} */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 255, 0.1);
+  border-radius: 3px;
+}
+#btmbar .el-dialog {
+  position: absolute;
+  right: 260px;
+  bottom: 80px;
+  max-height: 600px;
+  overflow: auto;
+}
+.scroll .el-slider__bar {
+  background-image: linear-gradient(to left, #a1c4fd 0%, #c2e9fb 100%);
+}
+.lound .el-slider__bar {
+  background: linear-gradient(#a1c4fd 0%, #c2e9fb 100%);
+}
+.loundBox:hover .el-slider.is-vertical .el-slider__runway {
+  display: block;
+}
+.lound .el-slider__button {
+  width: 10px;
+  height: 10px;
+}
+.lound .el-slider.is-vertical .el-slider__runway {
+  width: 4px;
+  /* height: 0; */
+  display: none;
+}
+</style>
 <style scoped lang="scss">
 .scrollbar-flex-content {
   display: flex;
@@ -595,44 +676,6 @@ onMounted(() => {
   .bottom {
     background: rgba($color: #000000, $alpha: 0.8);
     flex: 1;
-    /* .el-dialog__wrapper{
-  position: absolute !important;
-  right: 0;
-  bottom: 0;
-  z-index: 99999;
-  overflow: auto;
-} */
-    ::-webkit-scrollbar {
-      width: 8px;
-    }
-    ::-webkit-scrollbar-thumb {
-      background-color: rgba(0, 0, 255, 0.1);
-      border-radius: 3px;
-    }
-    #btmbar .el-dialog {
-      position: absolute;
-      right: 260px;
-      bottom: 80px;
-      max-height: 600px;
-      overflow: auto;
-    }
-    .scroll .el-slider__bar {
-      background-image: linear-gradient(to left, #a1c4fd 0%, #c2e9fb 100%);
-    }
-    .lound .el-slider__bar {
-      background: linear-gradient(#a1c4fd 0%, #c2e9fb 100%);
-    }
-    .loundBox:hover .el-slider.is-vertical .el-slider__runway {
-      display: block;
-    }
-    .lound .el-slider__button {
-      width: 10px;
-      height: 10px;
-    }
-    .lound .el-slider.is-vertical .el-slider__runway {
-      width: 4px;
-      display: none;
-    }
     .lound {
       position: absolute;
       top: -26px;
@@ -649,6 +692,14 @@ onMounted(() => {
       position: relative;
       justify-content: space-around;
       align-items: center;
+      div i {
+        margin-right: 10px;
+        font-size: 16px;
+        color: #888;
+      }
+      div:last-of-type {
+        margin-right: 200px;
+      }
     }
     .more-btn {
       padding: 0;
@@ -658,29 +709,16 @@ onMounted(() => {
       color: #888;
       margin-right: 8px;
     }
-    .more div i {
-      margin-right: 10px;
-      font-size: 16px;
-      color: #888;
-    }
-    .more div:last-of-type {
-      margin-right: 200px;
-    }
-    #btmbar {
-      position: relative;
-      height: 70px;
-      background: rgba(0, 0, 255, 0.1);
-    }
     .content {
       display: flex;
       justify-content: space-between;
-    }
-    .content .left {
-      display: flex;
-    }
-    .content .left > div {
-      margin-left: 10px;
-      margin-top: 10px;
+      .left {
+        display: flex;
+      }
+      .left > div {
+        margin-left: 10px;
+        margin-top: 10px;
+      }
     }
     .singimg img {
       width: 45px;
@@ -688,9 +726,9 @@ onMounted(() => {
     }
     .s-img {
       position: relative;
-    }
-    .s-img:hover .m-img {
-      display: block;
+      &:hover .m-img {
+        display: block;
+      }
     }
     .m-img {
       position: absolute;
@@ -721,13 +759,13 @@ onMounted(() => {
     .play {
       display: flex;
       justify-content: space-between;
-    }
-    .play > div {
-      font-size: 40px;
-      margin-top: 10px;
-    }
-    .play i {
-      color: #5192fe;
+      & > div {
+        font-size: 40px;
+        margin-top: 10px;
+      }
+      i {
+        color: #5192fe;
+      }
     }
   }
 }
