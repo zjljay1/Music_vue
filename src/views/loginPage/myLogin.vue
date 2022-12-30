@@ -6,12 +6,47 @@
         <!-- 注册 -->
         <div class="register-box hidden" ref="register_box">
           <h1>register</h1>
-          <input type="text" placeholder="用户名" v-model="loginData.account" />
-          <input type="email" placeholder="邮箱" v-model="loginData.email" />
-          <input type="password" placeholder="密码" v-model="loginData.psd" />
-          <input type="password" placeholder="确认密码" />
+          <!-- <input type="text" placeholder="请输入用户名" v-model="LoReData.account" />
+          <input type="email" placeholder="请输入邮箱" v-model="LoReData.email" />
+          <input type="password" placeholder="请输入密码" v-model="LoReData.psd" />
+          <input type="password" placeholder="确认密码" /> -->
+          <el-form
+            ref="registFormRef"
+            :model="LoReData"
+            status-icon
+            :rules="rulesLoRe"
+            class="demo-ruleForm"
+          >
+            <el-form-item prop="account">
+              <el-input
+                v-model="LoReData.account"
+                type="text"
+                autocomplete="off"
+                placeholder="请输入用户名"
+              />
+            </el-form-item>
+            <el-form-item prop="age">
+              <el-input v-model.number="LoReData.email" placeholder="请输入邮箱" />
+            </el-form-item>
+            <el-form-item prop="psd">
+              <el-input
+                v-model="LoReData.psd"
+                type="password"
+                autocomplete="off"
+                placeholder="请输入密码"
+              />
+            </el-form-item>
+            <el-form-item prop="rePsd">
+              <el-input
+                v-model="LoReData.rePsd"
+                type="password"
+                autocomplete="off"
+                placeholder="确认密码"
+              />
+            </el-form-item>
+          </el-form>
           <a href="#" class="button button--bird">
-            <div class="button__wrapper">
+            <div class="button__wrapper" @click="bindRegist(registFormRef)">
               <span class="button__text">注册</span>
             </div>
             <div class="birdBox">
@@ -30,10 +65,35 @@
         <!-- 登录 -->
         <div class="login-box" ref="login_box">
           <h1>login</h1>
-          <input type="text" placeholder="用户名" v-model="loginData.account" />
-          <input type="password" placeholder="密码" v-model="loginData.psd" />
+          <!-- <input type="text" placeholder="请输入用户名" v-model="LoReData.account" />
+          <input type="password" placeholder="请输入密码" v-model="LoReData.psd" /> -->
+          <el-form
+            ref="loginFormRef"
+            :model="LoReData"
+            status-icon
+            :rules="rulesLoRe"
+            class="demo-ruleForm"
+          >
+            <el-form-item prop="account">
+              <el-input
+                v-model="LoReData.account"
+                type="text"
+                autocomplete="off"
+                placeholder="请输入用户名"
+              />
+            </el-form-item>
+            <el-form-item prop="psd">
+              <el-input
+                v-model="LoReData.psd"
+                type="password"
+                show-password
+                autocomplete="off"
+                placeholder="请输入密码"
+              />
+            </el-form-item>
+          </el-form>
           <a href="#" class="button button--bird">
-            <div class="button__wrapper">
+            <div class="button__wrapper" @click="bindLogin(loginFormRef)">
               <span class="button__text">登录</span>
             </div>
             <div class="birdBox">
@@ -74,41 +134,143 @@
 </template>
 
 <script lang="ts" setup>
-import { getCurrentInstance, reactive, toRefs } from "vue";
+import { getCurrentInstance, reactive, ref, toRefs } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import type { FormInstance } from "element-plus";
+import { api } from "@/axios/index";
+import { ElMessage } from "element-plus";
+
 const instance = getCurrentInstance()!;
-const loginData = reactive({
-  account: "123",
+const route = useRoute();
+const router = useRouter();
+type oneInfo = {
+  account: string;
+  psd: string;
+  email?: string;
+  rePsd?: string;
+};
+const LoReData: oneInfo = reactive({
+  account: "",
   psd: "",
   email: "",
+  rePsd: "",
 });
 function toLogin(): void {
   (instance.refs.from_box as HTMLElement).style.transform = `translateX(0%)`;
   (instance.refs.register_box as HTMLElement).classList.add("hidden");
   (instance.refs.login_box as HTMLElement).classList.remove("hidden");
   console.log(instance);
-  console.log(loginData);
+  console.log(LoReData);
 }
 const toRegister = (): void => {
   (instance.refs.from_box as HTMLElement).style.transform = `translateX(80%)`;
   (instance.refs.login_box as HTMLElement).classList.add("hidden");
   (instance.refs.register_box as HTMLElement).classList.remove("hidden");
   console.log(instance);
-  console.log(loginData);
+  console.log(LoReData);
+};
+//表单登录验证事件：
+const loginFormRef = ref<FormInstance>();
+
+const validateAccount = (rule: any, value: any, callback: any) => {
+  if (value === "") {
+    callback(new Error("Please input the account"));
+  } else {
+    if (LoReData.psd !== "") {
+      if (!loginFormRef.value) return;
+      loginFormRef.value.validateField("account", () => null);
+    }
+    callback();
+  }
+};
+const validatePass = (rule: any, value: any, callback: any) => {
+  if (value === "") {
+    callback(new Error("Please input the password"));
+  } else {
+    callback();
+  }
+};
+const validateRePass = (rule: any, value: any, callback: any) => {
+  if (value === "") {
+    callback(new Error("Please input the password again"));
+  } else if (value !== LoReData.psd) {
+    callback(new Error("Two inputs don't match!"));
+  } else {
+    callback();
+  }
+};
+const rulesLoRe = reactive({
+  account: [{ validator: validateAccount, trigger: "blur" }],
+  psd: [{ validator: validatePass, trigger: "blur" }],
+  rePsd: [{ validator: validateRePass, trigger: "blur" }],
+});
+type resDate = {
+  TokenName: string;
+  TokenValue: string;
+};
+const bindLogin = (formEl: FormInstance | undefined) => {
+  console.log(111);
+  if (!formEl) return;
+  formEl.validate(async (valid) => {
+    const data = { username: LoReData.account, password: LoReData.psd };
+    if (valid) {
+      const [e, res] = await api.login(data);
+      console.log("submit!", e, res);
+      const resData = res?.data as resDate;
+      if (res?.code == "200") {
+        localStorage.setItem(resData.TokenName, resData.TokenValue);
+        ElMessage({
+          message: res?.message,
+          type: "success",
+        });
+        router.push("/index");
+      }
+    } else {
+      console.log("error submit!");
+      return false;
+    }
+  });
+};
+//表单注册验证事件：
+const registFormRef = ref<FormInstance>();
+
+const bindRegist = (formEl: FormInstance | undefined) => {
+  if (!formEl) return;
+  formEl.validate(async (valid) => {
+    const data = { username: LoReData.account, password: LoReData.psd, accountname: "wuhu" };
+    if (valid) {
+      const [e, res] = await api.register(data);
+      console.log("submit!", e, res);
+      const resData = res?.data as resDate;
+      if (res?.code == "200") {
+        localStorage.setItem(resData.TokenName, resData.TokenValue);
+        ElMessage({
+          message: res?.message,
+          type: "success",
+        });
+        router.push("/index");
+      }
+    } else {
+      console.log("error submit!");
+      return false;
+    }
+  });
 };
 </script>
-
-<style lang="scss">
+<style>
 body {
   /* 100%窗口高度 */
   height: 100vh;
   /* 弹性布局 水平+垂直居中 */
   display: flex;
-  justify-content: center !important;
-  align-items: center !important;
+  justify-content: center;
+  align-items: center;
   /* 渐变背景 */
   background: linear-gradient(200deg, #f3e7e9, #e3eeff);
 }
-.outer{
+</style>
+<style lang="scss" scoped>
+.outer {
   height: 100%;
   width: 100%;
   position: relative;

@@ -12,11 +12,12 @@ const sjo = async () => {
   console.log(userInfo.value);
 };
 const data = { name: "Jay", password: "123" };
+// const data = { username: "admin", password: "123456" };
 const sjos = async () => {
   console.log(2);
   const [e, r] = await api.testpo(data);
   if (!e && r) userInfo.value = r.data;
-  console.log(userInfo.value);
+  console.log(1111, userInfo.value);
 };
 
 const login = async () => {

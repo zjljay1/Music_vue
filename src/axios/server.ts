@@ -9,7 +9,7 @@ import {
 } from "./tools";
 
 type Fn = (data: FcResponse<any>) => unknown;
-const urls = "http://localhost:8080/";
+const urls = "http://localhost:8989/";
 
 interface IAnyObj {
   [index: string]: unknown;
@@ -19,6 +19,8 @@ interface FcResponse<T> {
   errno: string;
   errmsg: string;
   data: T;
+  code: string;
+  message: string;
 }
 
 // const urls = "http://localhost:8080";
@@ -34,7 +36,8 @@ axios.interceptors.response.use(
     console.log(response);
     if (response.status !== 200) return Promise.reject(response.data);
     handleAuthError(response.data.errno);
-    handleGeneralError(response.data.errno, response.data.errmsg);
+    // handleGeneralError(response.data.errno, response.data.errmsg);
+    handleGeneralError(response.data.code, response.data.message);
     return response;
   },
   (err) => {
