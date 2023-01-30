@@ -36,6 +36,11 @@ const routes: Array<RouteRecordRaw> = [
     name: "axios",
     component: () => import("../views/axios.vue"),
   },
+  {
+    path: "/likedSongs",
+    name: "likedSongs",
+    component: () => import("../views/likedSongsPage/myLikedSongs.vue"),
+  },
 ];
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
